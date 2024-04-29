@@ -1,0 +1,15 @@
+{
+  "name": "vector_ts",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "tslint": "^6.1.3",
+    "typescript": "^5.4.5"
+  }
+}

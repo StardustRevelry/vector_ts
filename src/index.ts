@@ -1,3 +1,5 @@
+import Vector3D from "./Vector3D";
+
 export default class Vector {
   x: number;
   y: number;
@@ -44,18 +46,18 @@ export default class Vector {
     return new Vector(0, this.y);
   }
 
-  copy(v: VectorLike) {
+  copy(v: VectorLike):Vector {
     this.x = v.x;
     this.y = v.y;
     return this;
   }
 
-  copyX(x: number | VectorLike) {
+  copyX(x: number | VectorLike):Vector {
     typeof x === 'number'? this.x = x : this.x = x.x;
     return this;
   }
 
-  copyY(y: number | VectorLike) {
+  copyY(y: number | VectorLike):Vector {
     typeof y === 'number'? this.y = y : this.y = y.y;
     return this;
   }
@@ -265,10 +267,68 @@ export default class Vector {
     return Math.sqrt(v.x ** 2 + v.y ** 2);
   }
 
+  lengthSq(): number {
+    return this.x ** 2 + this.y ** 2;
+  }
+
+  static lengthSq(v: VectorLike): number {
+    return v.x ** 2 + v.y ** 2;
+  }
+
+  distance(v: VectorLike):number {
+    const dx = this.x - v.x;
+    const dy = this.y - v.y;
+    return Math.sqrt(dx ** 2 + dy ** 2);
+  }
+
   static distance(v1: VectorLike, v2: VectorLike): number {
     const dx = v1.x - v2.x;
     const dy = v1.y - v2.y;
     return Math.sqrt(dx ** 2 + dy ** 2);
+  }
+
+  distanceSq(v: VectorLike): number {
+    const dx = this.x - v.x;
+    const dy = this.y - v.y;
+    return dx ** 2 + dy ** 2;
+  }
+
+  static distanceSq(v1: VectorLike, v2: VectorLike): number{
+    const dx = v1.x - v2.x;
+    const dy = v1.y - v2.y;
+    return dx ** 2 + dy ** 2;
+  }
+  
+  distanceX(v: VectorLike): number {
+    return this.x - v.x;
+  }
+  
+  static distanceX(v1: VectorLike, v2: VectorLike): number {
+    return v1.x - v2.x;
+  }
+  
+  absDistanceX(v: VectorLike): number {
+    return Math.abs(this.x - v.x);
+  }
+  
+  static absDistanceX(v1: VectorLike, v2: VectorLike): number {
+    return Math.abs(v1.x - v2.x);
+  }
+
+  distanceY(v: VectorLike): number {
+    return this.y - v.y;
+  }
+
+  static distanceY(v1: VectorLike, v2: VectorLike): number {
+    return v1.y - v2.y;
+  }
+
+  absDistanceY(v: VectorLike): number {
+    return Math.abs(this.y - v.y);
+  }
+
+  static absDistanceY(v1: VectorLike, v2: VectorLike): number {
+    return Math.abs(v1.y - v2.y);
   }
 
   dot(v: VectorLike): number {
@@ -291,7 +351,17 @@ export default class Vector {
 
   // TODO: 关于向量的角度运算
 
-  // 取反/绝对值
+  // 比较运算
+
+  inRange(v:Vector, range: number): boolean {
+    return this.distanceSq(v) <= range**2;
+  }
+
+  static inRange(v1: VectorLike, v2: VectorLike, range: number):boolean {
+    return Vector.distanceSq(v1, v2) <= range**2;
+  }
+
+  // 一元运算
 
   neg(): Vector {
     return new Vector(-this.x, -this.y);
@@ -337,6 +407,48 @@ export default class Vector {
 
   static abs(v: VectorLike): Vector {
     return new Vector(Math.abs(v.x), Math.abs(v.y));
+  }
+
+  floor(): Vector {
+    return new Vector(Math.floor(this.x), Math.floor(this.y))
+  }
+
+  toFloor(): Vector{
+    this.x = Math.floor(this.x);
+    this.y = Math.floor(this.y);
+    return this;
+  }
+
+  static floor(v: VectorLike): Vector{
+    return new Vector(Math.floor(v.x), Math.floor(v.y));
+  }
+
+  ceil(): Vector {
+    return new Vector(Math.ceil(this.x), Math.ceil(this.y))
+  }
+
+  toCeil(): Vector{
+    this.x = Math.ceil(this.x);
+    this.y = Math.ceil(this.y);
+    return this;
+  }
+
+  static ceil(v: VectorLike): Vector{
+    return new Vector(Math.ceil(v.x), Math.ceil(v.y));
+  }
+
+  round(): Vector {
+    return new Vector(Math.round(this.x), Math.round(this.y))
+  }
+
+  toRound(): Vector{
+    this.x = Math.round(this.x);
+    this.y = Math.round(this.y);
+    return this;
+  }
+
+  static round(v: VectorLike): Vector{
+    return new Vector(Math.round(v.x), Math.round(v.y));
   }
 }
 

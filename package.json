@@ -2,14 +2,19 @@
   "name": "vector_ts",
   "version": "1.0.0",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc"
   },
+  "files": [
+    "lib/**/*"
+  ],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
     "@types/node": "^20.12.7",
+    "prettier": "^3.2.5",
     "tslint": "^6.1.3",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^5.4.5"
   }
 }

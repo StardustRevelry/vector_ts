@@ -31,7 +31,7 @@ nbproject
 thumbs.db  
 *.iml  
 
-# Folders to ignore  
+# Folders to ignore
 .hg  
 .svn  
 .CVS  
@@ -40,3 +40,6 @@ node_modules/
 jscoverage_lib/  
 bower_components/  
 dist/
+
+# Files to ignore
+package-lock.json

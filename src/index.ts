@@ -1,4 +1,4 @@
-import Vector3D from "./Vector3D";
+import {VectorPlotLike} from "./VectorPlot";
 
 export default class Vector {
   x: number;
@@ -9,6 +9,17 @@ export default class Vector {
   constructor(x: number, y: number) {
     this.x = x;
     this.y = y;
+  }
+
+  static fromPlot(plot: VectorPlotLike): Vector {
+    const {theta, r} = plot;
+    const x = r * Math.cos(theta);
+    const y = r * Math.sin(theta);
+    return new Vector(x, y);
+  }
+
+  static fromAngle(angle: number): Vector {
+    return new Vector(Math.cos(angle), Math.sin(angle));
   }
 
   static fromArray(arr: number[]): Vector {
@@ -26,6 +37,35 @@ export default class Vector {
   static fromJson(json: string): Vector {
     const obj = JSON.parse(json);
     return Vector.fromObj(obj);
+  }
+
+  // 随机函数
+
+  static randomize(topLeft:VectorLike, bottomRight:VectorLike): Vector {
+    const dimensions = Vector.sub(topLeft, bottomRight);
+    const x = Math.random() * dimensions.x;
+    const y = Math.random() * dimensions.y;
+    return new Vector(x + topLeft.x, y + topLeft.y);
+  }
+
+  static randomizeX(topLeft:VectorLike, bottomRight:VectorLike): Vector {
+    const dimensions = Vector.sub(topLeft, bottomRight);
+    const x = Math.random() * dimensions.x;
+    return new Vector(x + topLeft.x, topLeft.y);
+  }
+
+  static randomizeY(topLeft:VectorLike, bottomRight:VectorLike): Vector {
+    const dimensions = Vector.sub(topLeft, bottomRight);
+    const y = Math.random() * dimensions.y;
+    return new Vector(topLeft.x, y + topLeft.y);
+  }
+
+  static randomizeCircle(center:VectorLike, radius:number): Vector {
+    const angle = Math.random() * Math.PI * 2;
+    const r = Math.random() * radius;
+    const x = Math.cos(angle) * r;
+    const y = Math.sin(angle) * r;
+    return new Vector(x + center.x, y + center.y);
   }
 
   // 工具函数
@@ -185,6 +225,11 @@ export default class Vector {
     return this.mul(scale);
   }
 
+  static scale(v: VectorLike, len: number) {
+    const scale = len / Vector.len(v);
+    return new Vector(v.x * scale, v.y * scale);
+  }
+
   limit(len: number) {
     if (this.length() > len) {
       return this.scale(len);
@@ -225,8 +270,8 @@ export default class Vector {
   }
 
   static mix(v1: VectorLike, v2: VectorLike, alpha: number) {
-    const x = v1.x + (v2.x - v1.x)
-    const y = v1.y + (v2.y - v1.y)
+    const x = v1.x + (v2.x - v1.x) * alpha;
+    const y = v1.y + (v2.y - v1.y) * alpha;
     return new Vector(x, y);
   }
 
@@ -347,9 +392,302 @@ export default class Vector {
     return v1.x * v2.y - v1.y * v2.x;
   }
 
+  // 投影运算
+
+  orthogonalProjection(v?: VectorLike): Vector[] {
+    if (!v || v.x === 0 && v.y === 0) {
+      // 默认投影到x,y坐标轴上
+      return [new Vector(this.x, 0), new Vector(0, this.y)];
+    }
+    else {
+      const h_vector = new Vector(v.y, -v.x);
+      return [Vector.scale(v, this.dot(v)), h_vector.scale(this.dot(h_vector))];
+    }
+  }
+  orth = this.orthogonalProjection;
+
+  orthogonalProjectionLength(v?: VectorLike): number[] {
+    if (!v || v.x === 0 && v.y === 0) {
+      // 默认投影到x,y坐标轴上
+      return [this.x, this.y];
+    }
+    else {
+      const h_vector = new Vector(v.y, -v.x);
+      return [Vector.dot(this, v), Vector.dot(this, h_vector)];
+    }
+  }
+  orthLen = this.orthogonalProjectionLength;
+
+  static orthogonalProjection(v1: VectorLike, v2?: VectorLike): Vector[] {
+    if (!v2 || v2.x === 0 && v2.y === 0) {
+      // 默认投影到x,y坐标轴上
+      return [new Vector(v1.x, 0), new Vector(0, v1.y)];
+    }
+    else {
+      const h_vector = new Vector(v2.y, -v2.x);
+      return [Vector.scale(v2, Vector.dot(v1, v2)), h_vector.scale(Vector.dot(v1, h_vector))];
+    }
+  }
+  static orth = Vector.orthogonalProjection;
+
+  static orthogonalProjectionLength(v1: VectorLike, v2?: VectorLike): number[] {
+    if (!v2 || v2.x === 0 && v2.y === 0) {
+      // 默认投影到x,y坐标轴上
+      return [v1.x, v1.y];
+    }
+    else {
+      const h_vector = new Vector(v2.y, -v2.x);
+      return [Vector.dot(v1, v2), Vector.dot(v1, h_vector)];
+    }
+  }
+  static orthLen = Vector.orthogonalProjectionLength;
+
+  orthogonalProjectionHorizontal(v?: VectorLike): Vector {
+    if (!v || v.x === 0) {
+      return new Vector(this.x, 0);
+    }
+    else {
+      return Vector.scale(v, this.dot(v));
+    }
+  }
+  orthH = this.orthogonalProjectionHorizontal;
+
+  orthogonalProjectionHorizontalLength(v?: VectorLike): number {
+    if (!v || v.x === 0) {
+      return this.x;
+    }
+    else {
+      return Vector.dot(this, v);
+    }
+  }
+  horLen = this.orthogonalProjectionHorizontalLength;
+
+  static orthogonalProjectionHorizontal(v1: VectorLike, v2?: VectorLike): Vector {
+    if (!v2 || v2.x === 0) {
+      return new Vector(v1.x, 0);
+    }
+    else {
+      return Vector.scale(v2, Vector.dot(v1, v2));
+    }
+  }
+  static orthH = Vector.orthogonalProjectionHorizontal;
+
+  static orthogonalProjectionHorizontalLength(v1: VectorLike, v2?: VectorLike): number {
+    if (!v2 || v2.x === 0) {
+      return v1.x;
+    }
+    else {
+      return Vector.dot(v1, v2);
+    }
+  }
+  static horLen = Vector.orthogonalProjectionHorizontalLength;
+
+  orthogonalProjectionVertical(v?: VectorLike): Vector {
+    if (!v || v.y === 0) {
+      return new Vector(0, this.y);
+    }
+    else {
+      const h_vector = new Vector(v.y, -v.x);
+      return Vector.scale(h_vector, this.dot(h_vector));
+    }
+  }
+  orthV = this.orthogonalProjectionVertical;
+
+  orthogonalProjectionVerticalLength(v?: VectorLike): number {
+    if (!v || v.y === 0) {
+      return this.y;
+    }
+    else {
+      const h_vector = new Vector(v.y, -v.x);
+      return Vector.dot(this, h_vector);
+    }
+  }
+  vertLen = this.orthogonalProjectionVerticalLength;
+
+  static orthogonalProjectionVertical(v1: VectorLike, v2?: VectorLike): Vector {
+    if (!v2 || v2.y === 0) {
+      return new Vector(0, v1.y);
+    }
+    else {
+      const h_vector = new Vector(v2.y, -v2.x);
+      return Vector.scale(h_vector, Vector.dot(v1, h_vector));
+    }
+  }
+  static orthV = Vector.orthogonalProjectionVertical;
+
+  static orthogonalProjectionVerticalLength(v1: VectorLike, v2?: VectorLike): number {
+    if (!v2 || v2.y === 0) {
+      return v1.y;
+    }
+    else {
+      const h_vector = new Vector(v2.y, -v2.x);
+      return Vector.dot(v1, h_vector);
+    }
+  }
+  static vertLen = Vector.orthogonalProjectionVerticalLength;
+
   // 角度运算
 
-  // TODO: 关于向量的角度运算
+  angle(): number {
+    return Math.atan2(this.y, this.x);
+  }
+  angleRad = this.angle;
+  angleDeg(): number {
+    return this.angle() * 180 / Math.PI;
+  }
+
+  static angle(v1: VectorLike): number {
+    return Math.atan2(v1.y, v1.x);
+  }
+  static angleRad = Vector.angle;
+  static angleDeg(v1: VectorLike): number {
+    return Math.atan2(v1.y, v1.x) * 180 / Math.PI;
+  }
+
+  angleTo(v: VectorLike): number {
+    const dot_result = this.dot(v);
+    const len1 = this.length();
+    const len2 = Vector.len(v);
+    const cos_theta = dot_result / (len1 * len2);
+    return Math.acos(cos_theta);
+  }
+  angleToRad = this.angleTo;
+  angleToDeg(v: VectorLike): number {
+    return this.angleTo(v) * 180 / Math.PI;
+  }
+
+  static angleTo(v1: VectorLike, v2: VectorLike): number {
+    const dot_result = Vector.dot(v1, v2);
+    const len1 = Vector.len(v1);
+    const len2 = Vector.len(v2);
+    const cos_theta = dot_result / (len1 * len2);
+    return Math.acos(cos_theta);
+  }
+  static angleToRad = Vector.angleTo;
+  static angleToDeg(v1: VectorLike, v2: VectorLike): number {
+    return Vector.angleTo(v1, v2) * 180 / Math.PI;
+  }
+
+  static angleCosTo(v1: VectorLike, v2: VectorLike): number {
+    const dot_result = Vector.dot(v1, v2);
+    const len1 = Vector.len(v1);
+    const len2 = Vector.len(v2);
+    return dot_result / (len1 * len2);
+  }
+  static angleSinTo(v1: VectorLike, v2: VectorLike): number {
+    const cross_result = Vector.cross(v1, v2);
+    const len1 = Vector.len(v1);
+    const len2 = Vector.len(v2);
+    return cross_result / (len1 * len2);
+  }
+
+  rotate(angle: number): Vector {
+    const cosa = Math.cos(angle);
+    const sina = Math.sin(angle);
+    /**
+     * 旋转矩阵 R:
+     * | cos(a), -sin(a) |
+     * | sin(a),  cos(a) |
+     * 结果:
+     * R · v
+     */
+    this.x = this.x * cosa - this.y * sina;
+    this.y = this.x * sina + this.y * cosa;
+    return this;
+  }
+  rotateRad = this.rotate;
+  rotateDeg(angle: number): Vector {
+    return this.rotate(angle * Math.PI / 180);
+  }
+  rotateVert(): Vector {
+    return new Vector(this.y, -this.x);
+  }
+
+  static rotate(v:VectorLike, angle: number): Vector {
+    const cosa = Math.cos(angle);
+    const sina = Math.sin(angle);
+    /**
+     * 旋转矩阵 R:
+     * | cos(a), -sin(a) |
+     * | sin(a),  cos(a) |
+     * 结果:
+     * R · v
+     */
+    v.x = v.x * cosa - v.y * sina;
+    v.y = v.x * sina + v.y * cosa;
+    return new Vector(v.x, v.y);
+  }
+  static rotateRad = Vector.rotate;
+  static rotateDeg(v:VectorLike, angle: number): Vector {
+    return Vector.rotate(v, angle * Math.PI / 180);
+  }
+  static rotateVert(v: VectorLike): Vector {
+    return new Vector(v.y, -v.x);
+  }
+
+  rotateTo(v: VectorLike | number): Vector {
+    if (typeof v === 'number') {
+      return this.rotateToRad(v);
+    }
+    else {
+      const dot_result = this.dot(v);
+      const cross_result = this.cross(v);
+      const len1 = this.length();
+      const len2 = Vector.len(v);
+      const cos_theta = dot_result / (len1 * len2);
+      const sin_theta = cross_result / (len1 * len2);
+      this.x = this.x * cos_theta - this.y * sin_theta;
+      this.y = this.x * sin_theta + this.y * cos_theta;
+      return this.rotate(this.angleTo(v));
+    }
+  }
+  rotateToRad(angle: number): Vector {
+    const v = Vector.fromAngle(angle);
+    const dot_result = this.dot(v);
+    const cross_result = this.cross(v);
+    const len1 = this.length();
+    const len2 = 1;
+    const cos_theta = dot_result / (len1 * len2);
+    const sin_theta = cross_result / (len1 * len2);
+    this.x = this.x * cos_theta - this.y * sin_theta;
+    this.y = this.x * sin_theta + this.y * cos_theta;
+    return this;
+  }
+  rotateToDeg(angle: number): Vector {
+    return this.rotateToRad(angle * Math.PI / 180);
+  }
+
+  static rotateTo(v1: VectorLike, v2: VectorLike | number): Vector {
+    if (typeof v2 === 'number') {
+      return Vector.rotateToRad(v1, v2);
+    }
+    else {
+      const dot_result = Vector.dot(v1, v2);
+      const cross_result = Vector.cross(v1, v2);
+      const len1 = Vector.len(v1);
+      const len2 = Vector.len(v2);
+      const cos_theta = dot_result / (len1 * len2);
+      const sin_theta = cross_result / (len1 * len2);
+      const x = v1.x * cos_theta - v1.y * sin_theta;
+      const y = v1.x * sin_theta + v1.y * cos_theta;
+      return new Vector(x, y);
+    }
+  }
+  static rotateToRad(v: VectorLike, angle: number): Vector {
+    const v2 = Vector.fromAngle(angle);
+    const dot_result = Vector.dot(v, v2);
+    const cross_result = Vector.cross(v, v2);
+    const len1 = Vector.len(v);
+    const len2 = 1;
+    const cos_theta = dot_result / (len1 * len2);
+    const sin_theta = cross_result / (len1 * len2);
+    const x = v.x * cos_theta - v.y * sin_theta;
+    const y = v.x * sin_theta + v.y * cos_theta;
+    return new Vector(x, y);
+  }
+  static rotateToDeg(v: VectorLike, angle: number): Vector {
+    return Vector.rotateToRad(v, angle * Math.PI / 180);
+  }
 
   // 比较运算
 
@@ -359,6 +697,36 @@ export default class Vector {
 
   static inRange(v1: VectorLike, v2: VectorLike, range: number):boolean {
     return Vector.distanceSq(v1, v2) <= range**2;
+  }
+
+  quadrant(): number {
+    if ( this.x >= 0 && this.y >= 0) {
+      return 1;
+    }
+    else if ( this.x < 0 && this.y >= 0) {
+      return 2;
+    }
+    else if ( this.x < 0 && this.y < 0) {
+      return 3;
+    }
+    else { // this.x >= 0 && this.y < 0
+      return 4;
+    }
+  }
+
+  static quadrant(v: VectorLike): number {
+    if ( v.x >= 0 && v.y >= 0) {
+      return 1;
+    }
+    else if ( v.x < 0 && v.y >= 0) {
+      return 2;
+    }
+    else if ( v.x < 0 && v.y < 0) {
+      return 3;
+    }
+    else { // v.x >= 0 && v.y < 0
+      return 4;
+    }
   }
 
   // 一元运算
@@ -455,7 +823,7 @@ export default class Vector {
 export interface VectorLike {
   x: number;
   y: number;
-  z?: number;
+  z?: number; // 兼容三维向量
 }
 
 

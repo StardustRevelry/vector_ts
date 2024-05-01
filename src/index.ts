@@ -1,10 +1,11 @@
 import {VectorPlotLike} from "./VectorPlot";
+import Vector3D, {Vector3DLike} from "./Vector3D";
 
 export default class Vector {
   x: number;
   y: number;
 
-  // 构造函数
+  // constructors 构造函数
 
   constructor(x: number, y: number) {
     this.x = x;
@@ -39,7 +40,7 @@ export default class Vector {
     return Vector.fromObj(obj);
   }
 
-  // 随机函数
+  // randomize 随机函数
 
   static randomize(topLeft:VectorLike, bottomRight:VectorLike): Vector {
     const dimensions = Vector.sub(topLeft, bottomRight);
@@ -62,16 +63,21 @@ export default class Vector {
 
   static randomizeCircle(center:VectorLike, radius:number): Vector {
     const angle = Math.random() * Math.PI * 2;
-    const r = Math.random() * radius;
+    const r = Math.sqrt(Math.random()) * radius;
     const x = Math.cos(angle) * r;
     const y = Math.sin(angle) * r;
     return new Vector(x + center.x, y + center.y);
   }
 
-  // 工具函数
+  // utils 工具函数
 
   stringify(): string {
     return JSON.stringify(this);
+  }
+  toString = this.stringify;
+
+  toObject(): VectorLike {
+    return {x: this.x, y: this.y};
   }
 
   clone(): VectorLike {
@@ -102,7 +108,7 @@ export default class Vector {
     return this;
   }
 
-  // 数学运算
+  // math 数学运算
 
   add(v: VectorLike): Vector {
     this.x += v.x;
@@ -392,7 +398,7 @@ export default class Vector {
     return v1.x * v2.y - v1.y * v2.x;
   }
 
-  // 投影运算
+  // projections 投影运算
 
   orthogonalProjection(v?: VectorLike): Vector[] {
     if (!v || v.x === 0 && v.y === 0) {
@@ -526,7 +532,7 @@ export default class Vector {
   }
   static vertLen = Vector.orthogonalProjectionVerticalLength;
 
-  // 角度运算
+  // angles 角度运算
 
   angle(): number {
     return Math.atan2(this.y, this.x);
@@ -689,7 +695,7 @@ export default class Vector {
     return Vector.rotateToRad(v, angle * Math.PI / 180);
   }
 
-  // 比较运算
+  // comparison 比较运算
 
   inRange(v:Vector, range: number): boolean {
     return this.distanceSq(v) <= range**2;
@@ -729,7 +735,7 @@ export default class Vector {
     }
   }
 
-  // 一元运算
+  // unary 一元运算
 
   neg(): Vector {
     return new Vector(-this.x, -this.y);
@@ -818,6 +824,16 @@ export default class Vector {
   static round(v: VectorLike): Vector{
     return new Vector(Math.round(v.x), Math.round(v.y));
   }
+}
+
+export {
+  Vector,
+  Vector3D,
+}
+
+export type {
+  VectorPlotLike,
+  Vector3DLike
 }
 
 export interface VectorLike {

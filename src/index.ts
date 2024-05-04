@@ -143,11 +143,11 @@ export default class Vector {
     return {x: this.x, y: this.y};
   }
 
-  clone(): VectorLike {
+  clone(): Vector {
     return new Vector(this.x, this.y);
   }
 
-  cloneX(): VectorLike {
+  cloneX(): Vector {
     return new Vector(this.x, 0);
   }
 
@@ -722,7 +722,7 @@ export default class Vector {
       const sin_theta = cross_result / (len1 * len2);
       this.x = this.x * cos_theta - this.y * sin_theta;
       this.y = this.x * sin_theta + this.y * cos_theta;
-      return this.rotate(this.angleTo(v));
+      return this
     }
   }
   rotateToRad(angle: number): Vector {
@@ -905,9 +905,9 @@ export default class Vector {
 
   // constants 常量
 
-  static ZERO = new VectorConstant(0, 0);
-  static UNIT_X = new VectorConstant(1, 0);
-  static UNIT_Y = new VectorConstant(0, 1);
+  static readonly ZERO = new VectorConstant(0, 0);
+  static readonly UNIT_X = new VectorConstant(1, 0);
+  static readonly UNIT_Y = new VectorConstant(0, 1);
 }
 
 export {

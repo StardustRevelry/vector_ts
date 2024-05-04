@@ -1,6 +1,69 @@
 import {VectorPlotLike} from "./VectorPlot";
 import Vector3D, {Vector3DLike} from "./Vector3D";
 
+class VectorConstant {
+  readonly x: number;
+  readonly y: number;
+
+  constructor(x: number, y: number){
+    this.x = x;
+    this.y = y;
+  }
+
+  static fromPlot(plot: VectorPlotLike): VectorConstant {
+    const {theta, r} = plot;
+    const x = r * Math.cos(theta);
+    const y = r * Math.sin(theta);
+    return new VectorConstant(x, y);
+  }
+
+  static fromAngle(angle: number): VectorConstant {
+    return new VectorConstant(Math.cos(angle), Math.sin(angle));
+  }
+
+  static fromArray(arr: number[]): VectorConstant {
+    const x = arr[0] || 0;
+    const y = arr[1] || 0;
+    return new VectorConstant(x, y);
+  }
+
+  static fromObj(obj: VectorLike): VectorConstant {
+    const x = obj.x || 0;
+    const y = obj.y || 0;
+    return new VectorConstant(x, y);
+  }
+
+  static fromJson(json: string): VectorConstant {
+    const obj = JSON.parse(json);
+    return VectorConstant.fromObj(obj);
+  }
+
+  stringify(): string {
+    return JSON.stringify(this);
+  }
+  toString = this.stringify;
+
+  toObject(): VectorLike {
+    return {x: this.x, y: this.y};
+  }
+
+  toVector(): Vector {
+    return new Vector(this.x, this.y);
+  }
+
+  clone(): VectorLike {
+    return new Vector(this.x, this.y);
+  }
+
+  cloneX(): VectorLike {
+    return new Vector(this.x, 0);
+  }
+
+  cloneY(): Vector {
+    return new Vector(0, this.y);
+  }
+}
+
 export default class Vector {
   x: number;
   y: number;
@@ -237,27 +300,28 @@ export default class Vector {
   }
 
   limit(len: number) {
-    if (this.length() > len) {
-      return this.scale(len);
+    if (this.length() > Math.abs(len)) {
+      return this.scale(Math.abs(len));
     }
     return this;
   }
 
   limitX(x: number) {
-    if (this.x > x) {
-      this.x = x;
+    if (this.x > Math.abs(x)) {
+      this.x = Math.abs(x);
     }
     return this;
   }
 
   limitY(y: number) {
-    if (this.y > y) {
-      this.y = y;
+    if (this.y > Math.abs(y)) {
+      this.y = Math.abs(y);
     }
     return this;
   }
 
   mix(v: VectorLike, alpha: number) {
+    alpha = Math.min(1, Math.max(0, alpha));
     this.x += (v.x - this.x) * alpha;
     this.y += (v.y - this.y) * alpha;
     return this;
@@ -412,7 +476,7 @@ export default class Vector {
   }
   orth = this.orthogonalProjection;
 
-  orthogonalProjectionLength(v?: VectorLike): number[] {
+  orthogonalProjectionScalar(v?: VectorLike): number[] {
     if (!v || v.x === 0 && v.y === 0) {
       // 默认投影到x,y坐标轴上
       return [this.x, this.y];
@@ -422,7 +486,8 @@ export default class Vector {
       return [Vector.dot(this, v), Vector.dot(this, h_vector)];
     }
   }
-  orthLen = this.orthogonalProjectionLength;
+  orthogonalProjectionLength = this.orthogonalProjectionScalar;
+  orthLen = this.orthogonalProjectionScalar;
 
   static orthogonalProjection(v1: VectorLike, v2?: VectorLike): Vector[] {
     if (!v2 || v2.x === 0 && v2.y === 0) {
@@ -436,7 +501,7 @@ export default class Vector {
   }
   static orth = Vector.orthogonalProjection;
 
-  static orthogonalProjectionLength(v1: VectorLike, v2?: VectorLike): number[] {
+  static orthogonalProjectionScalar(v1: VectorLike, v2?: VectorLike): number[] {
     if (!v2 || v2.x === 0 && v2.y === 0) {
       // 默认投影到x,y坐标轴上
       return [v1.x, v1.y];
@@ -446,9 +511,10 @@ export default class Vector {
       return [Vector.dot(v1, v2), Vector.dot(v1, h_vector)];
     }
   }
-  static orthLen = Vector.orthogonalProjectionLength;
+  static orthogonalProjectionLength = Vector.orthogonalProjectionScalar;
+  static orthLen = Vector.orthogonalProjectionScalar;
 
-  orthogonalProjectionHorizontal(v?: VectorLike): Vector {
+  projection(v?: VectorLike): Vector {
     if (!v || v.x === 0) {
       return new Vector(this.x, 0);
     }
@@ -456,9 +522,11 @@ export default class Vector {
       return Vector.scale(v, this.dot(v));
     }
   }
-  orthH = this.orthogonalProjectionHorizontal;
+  projectionHorizontal = this.projection;
+  projH = this.projection;
+  proj = this.projection;
 
-  orthogonalProjectionHorizontalLength(v?: VectorLike): number {
+  projectionScalar(v?: VectorLike): number {
     if (!v || v.x === 0) {
       return this.x;
     }
@@ -466,9 +534,10 @@ export default class Vector {
       return Vector.dot(this, v);
     }
   }
-  horLen = this.orthogonalProjectionHorizontalLength;
+  projectionLength = this.projectionScalar;
+  projLenH = this.projectionScalar;
 
-  static orthogonalProjectionHorizontal(v1: VectorLike, v2?: VectorLike): Vector {
+  static projection(v1: VectorLike, v2?: VectorLike): Vector {
     if (!v2 || v2.x === 0) {
       return new Vector(v1.x, 0);
     }
@@ -476,9 +545,11 @@ export default class Vector {
       return Vector.scale(v2, Vector.dot(v1, v2));
     }
   }
-  static orthH = Vector.orthogonalProjectionHorizontal;
+  static projectionHorizontal = Vector.projection;
+  static projH = Vector.projection;
+  static proj = Vector.projection;
 
-  static orthogonalProjectionHorizontalLength(v1: VectorLike, v2?: VectorLike): number {
+  static projectionScalar(v1: VectorLike, v2?: VectorLike): number {
     if (!v2 || v2.x === 0) {
       return v1.x;
     }
@@ -486,9 +557,10 @@ export default class Vector {
       return Vector.dot(v1, v2);
     }
   }
-  static horLen = Vector.orthogonalProjectionHorizontalLength;
+  static projectionLength = Vector.projectionScalar;
+  static projLenH = Vector.projectionScalar;
 
-  orthogonalProjectionVertical(v?: VectorLike): Vector {
+  rejection(v?: VectorLike): Vector {
     if (!v || v.y === 0) {
       return new Vector(0, this.y);
     }
@@ -497,9 +569,11 @@ export default class Vector {
       return Vector.scale(h_vector, this.dot(h_vector));
     }
   }
-  orthV = this.orthogonalProjectionVertical;
+  projectionVertical = this.rejection;
+  projV = this.rejection;
+  oproj = this.rejection;
 
-  orthogonalProjectionVerticalLength(v?: VectorLike): number {
+  rejectionScalar(v?: VectorLike): number {
     if (!v || v.y === 0) {
       return this.y;
     }
@@ -508,9 +582,10 @@ export default class Vector {
       return Vector.dot(this, h_vector);
     }
   }
-  vertLen = this.orthogonalProjectionVerticalLength;
+  rejectionLength = this.rejectionScalar;
+  projLenV = this.rejectionScalar;
 
-  static orthogonalProjectionVertical(v1: VectorLike, v2?: VectorLike): Vector {
+  static rejection(v1: VectorLike, v2?: VectorLike): Vector {
     if (!v2 || v2.y === 0) {
       return new Vector(0, v1.y);
     }
@@ -519,9 +594,11 @@ export default class Vector {
       return Vector.scale(h_vector, Vector.dot(v1, h_vector));
     }
   }
-  static orthV = Vector.orthogonalProjectionVertical;
+  static projectionVertical = Vector.rejection;
+  static projV = Vector.rejection;
+  static oproj = Vector.rejection;
 
-  static orthogonalProjectionVerticalLength(v1: VectorLike, v2?: VectorLike): number {
+  static rejectionScalar(v1: VectorLike, v2?: VectorLike): number {
     if (!v2 || v2.y === 0) {
       return v1.y;
     }
@@ -530,7 +607,8 @@ export default class Vector {
       return Vector.dot(v1, h_vector);
     }
   }
-  static vertLen = Vector.orthogonalProjectionVerticalLength;
+  static rejectionLength = Vector.rejectionScalar;
+  static projLenV = Vector.rejectionScalar;
 
   // angles 角度运算
 
@@ -824,10 +902,17 @@ export default class Vector {
   static round(v: VectorLike): Vector{
     return new Vector(Math.round(v.x), Math.round(v.y));
   }
+
+  // constants 常量
+
+  static ZERO = new VectorConstant(0, 0);
+  static UNIT_X = new VectorConstant(1, 0);
+  static UNIT_Y = new VectorConstant(0, 1);
 }
 
 export {
   Vector,
+  VectorConstant,
   Vector3D,
 }
 

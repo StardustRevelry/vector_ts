@@ -1,4 +1,4 @@
-import {VectorPlotLike} from "./VectorPlot";
+import VectorPlot, {VectorPlotConstant, VectorPlotLike} from "./VectorPlot";
 import Vector3D, {Vector3DLike} from "./Vector3D";
 
 class VectorConstant {
@@ -913,6 +913,8 @@ export default class Vector {
 export {
   Vector,
   VectorConstant,
+  VectorPlot,
+  VectorPlotConstant,
   Vector3D,
 }
 

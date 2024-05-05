@@ -349,7 +349,7 @@ export default class VectorPlot {
     return [new VectorPlot(v2.theta, v1.r*Math.cos(d_theta)),
             new VectorPlot(v2.theta+Math.PI*0.5, v1.r*Math.sin(d_theta))];
   }
-  static orth = Vector.orthogonalProjection;
+  static orth = VectorPlot.orthogonalProjection;
 
   static orthogonalProjectionScalar(v1: VectorPlotLike, v2?: VectorPlotLike): number[] {
     v2 = v2 || VectorPlot.UNIT;
@@ -358,8 +358,8 @@ export default class VectorPlot {
     return [v1.r*Math.cos(d_theta),
             v1.r*Math.sin(d_theta)];
   }
-  static orthogonalProjectionLength = Vector.orthogonalProjectionScalar;
-  static orthLen = Vector.orthogonalProjectionScalar;
+  static orthogonalProjectionLength = VectorPlot.orthogonalProjectionScalar;
+  static orthLen = VectorPlot.orthogonalProjectionScalar;
 
   projection(v?: VectorPlotLike): VectorPlot {
     v = v || VectorPlot.UNIT;
@@ -386,9 +386,9 @@ export default class VectorPlot {
     const d_theta = v1.theta - v2.theta;
     return new VectorPlot(v2.theta, v1.r*Math.cos(d_theta));
   }
-  static projectionHorizontal = Vector.projection;
-  static projH = Vector.projection;
-  static proj = Vector.projection;
+  static projectionHorizontal = VectorPlot.projection;
+  static projH = VectorPlot.projection;
+  static proj = VectorPlot.projection;
 
   static projectionScalar(v1: VectorPlotLike, v2?: VectorPlotLike): number {
     v2 = v2 || VectorPlot.UNIT;
@@ -396,8 +396,8 @@ export default class VectorPlot {
     const d_theta = v1.theta - v2.theta;
     return v1.r*Math.cos(d_theta);
   }
-  static projectionLength = Vector.projectionScalar;
-  static projLenH = Vector.projectionScalar;
+  static projectionLength = VectorPlot.projectionScalar;
+  static projLenH = VectorPlot.projectionScalar;
 
   rejection(v: VectorPlotLike): VectorPlot {
     v = v || VectorPlot.UNIT;
@@ -424,9 +424,9 @@ export default class VectorPlot {
     const d_theta = v1.theta - v2.theta;
     return new VectorPlot(v2.theta, v1.r*Math.sin(d_theta));
   }
-  static projectionVertical = Vector.rejection;
-  static projV = Vector.rejection;
-  static oproj = Vector.rejection;
+  static projectionVertical = VectorPlot.rejection;
+  static projV = VectorPlot.rejection;
+  static oproj = VectorPlot.rejection;
 
   static rejectionScalar(v1: VectorPlotLike, v2?: VectorPlotLike): number {
     v2 = v2 || VectorPlot.UNIT;
@@ -434,8 +434,8 @@ export default class VectorPlot {
     const d_theta = v1.theta - v2.theta;
     return v1.r*Math.sin(d_theta);
   }
-  static rejectionLength = Vector.rejectionScalar;
-  static projLenV = Vector.rejectionScalar;
+  static rejectionLength = VectorPlot.rejectionScalar;
+  static projLenV = VectorPlot.rejectionScalar;
 
   // angle 角度运算
 

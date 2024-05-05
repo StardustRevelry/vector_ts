@@ -1,4 +1,4 @@
-import Vector, { VectorLike } from './index';
+import { VectorLike } from './index';
 export declare class VectorPlotConstant {
     readonly theta: number;
     readonly r: number;
@@ -111,7 +111,7 @@ export default class VectorPlot {
     rotateDeg(angle: number): this;
     rotateVert(): this;
     static rotate(v: VectorPlotLike, angle: number): VectorPlot;
-    static rotateRad: typeof Vector.rotate;
+    static rotateRad: typeof VectorPlot.rotate;
     static rotateDeg(v: VectorPlotLike, angle: number): VectorPlot;
     static rotateVert(v: VectorPlotLike): VectorPlot;
     rotateTo(v: VectorPlotLike | number): this;

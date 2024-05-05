@@ -493,7 +493,7 @@ export default class VectorPlot {
     v.theta += angle;
     return new VectorPlot(v.theta, v.r);
   }
-  static rotateRad = Vector.rotate;
+  static rotateRad = VectorPlot.rotate;
   static rotateDeg(v: VectorPlotLike, angle: number):VectorPlot {
     v.theta += degToRad(angle)
     return new VectorPlot(v.theta, v.r);

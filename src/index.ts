@@ -320,37 +320,37 @@ export default class Vector {
     return this;
   }
 
-  mix(v: VectorLike, alpha: number) {
+  mix(v: VectorLike, alpha = 0.5) {
     alpha = Math.min(1, Math.max(0, alpha));
     this.x += (v.x - this.x) * alpha;
     this.y += (v.y - this.y) * alpha;
     return this;
   }
 
-  mixX(x: number|VectorLike, alpha: number) {
+  mixX(x: number|VectorLike, alpha = 0.5) {
     typeof x === "number" ? x : x = x.x;
     this.x += (x - this.x) * alpha;
     return this;
   }
 
-  mixY(y: number|VectorLike, alpha: number) {
+  mixY(y: number|VectorLike, alpha = 0.5) {
     typeof y === "number" ? y : y = y.y;
     this.y += (y - this.y) * alpha;
     return this;
   }
 
-  static mix(v1: VectorLike, v2: VectorLike, alpha: number) {
+  static mix(v1: VectorLike, v2: VectorLike, alpha = 0.5) {
     const x = v1.x + (v2.x - v1.x) * alpha;
     const y = v1.y + (v2.y - v1.y) * alpha;
     return new Vector(x, y);
   }
 
-  static mixX(v1: VectorLike, x: number|VectorLike, alpha: number) {
+  static mixX(v1: VectorLike, x: number|VectorLike, alpha = 0.5) {
     x = typeof x === "number" ? x : x.x;
     return new Vector(v1.x + (x - v1.x) * alpha, 0);
   }
 
-  static mixY(v1: VectorLike, y: number|VectorLike, alpha: number) {
+  static mixY(v1: VectorLike, y: number|VectorLike, alpha = 0.5) {
     y = typeof y === "number" ? y : y.y;
     return new Vector(0, v1.y + (y - v1.y) * alpha);
   }
@@ -775,12 +775,42 @@ export default class Vector {
 
   // comparison 比较运算
 
-  inRange(v:Vector, range: number): boolean {
+  inRange(v:VectorLike, range: number): boolean {
     return this.distanceSq(v) <= range**2;
   }
 
   static inRange(v1: VectorLike, v2: VectorLike, range: number):boolean {
     return Vector.distanceSq(v1, v2) <= range**2;
+  }
+
+  inRect(position: VectorLike, dimensions: VectorLike): boolean
+  inRect(x: number, y: number, width: number, height: number): boolean
+
+  inRect(x: number|VectorLike, y: number|VectorLike, width?: number, height?: number): boolean {
+    if (typeof x === 'number'&&typeof y === 'number'&&typeof width === 'number'&&typeof height === 'number') {
+      return this.x >= x && this.x <= x + width && this.y >= y && this.y <= y + height;
+    }
+    else if (typeof x === 'object'&&typeof y === 'object') {
+      return this.x >= x.x && this.x <= x.x + y.x && this.y >= x.y && this.y <= x.y + y.y;
+    }
+    else {
+      return false;
+    }
+  }
+
+  static inRect(v:VectorLike, position: VectorLike, dimensions: VectorLike): boolean
+  static inRect(v:VectorLike, x: number, y: number, width: number, height: number): boolean
+
+  static inRect(v:VectorLike, x: number|VectorLike, y: number|VectorLike, width?: number, height?: number): boolean {
+    if (typeof x === 'number'&&typeof y === 'number'&&typeof width === 'number'&&typeof height === 'number') {
+      return v.x >= x && v.x <= x + width && v.y >= y && v.y <= y + height;
+    }
+    else if (typeof x === 'object'&&typeof y === 'object') {
+      return v.x >= x.x && v.x <= x.x + y.x && v.y >= x.y && v.y <= x.y + y.y;
+    }
+    else {
+      return false;
+    }
   }
 
   quadrant(): number {
@@ -810,6 +840,36 @@ export default class Vector {
     }
     else { // v.x >= 0 && v.y < 0
       return 4;
+    }
+  }
+
+  inQuadrant(quadrant: number): boolean {
+    switch (quadrant) {
+      case 1:
+        return this.x >= 0 && this.y >= 0;
+      case 2:
+        return this.x <= 0 && this.y >= 0;
+      case 3:
+        return this.x <= 0 && this.y <= 0;
+      case 4:
+        return this.x >= 0 && this.y <= 0;
+      default:
+        return false;
+    }
+  }
+
+  static inQuadrant(v: VectorLike, quadrant: number): boolean {
+    switch (quadrant) {
+      case 1:
+        return v.x >= 0 && v.y >= 0;
+      case 2:
+        return v.x <= 0 && v.y >= 0;
+      case 3:
+        return v.x <= 0 && v.y <= 0;
+      case 4:
+        return v.x >= 0 && v.y <= 0;
+      default:
+        return false;
     }
   }
 

@@ -1,3 +1,59 @@
+export class Vector3DConstants {
+  readonly x: number;
+  readonly y: number;
+  readonly z: number;
+
+  // constructor 构造函数
+
+  constructor(x: number, y: number, z: number) {
+    this.x = x;
+    this.y = y;
+    this.z = z;
+  }
+
+  static fromArray(arr: number[]): Vector3D {
+    const x = arr[0] || 0;
+    const y = arr[1] || 0;
+    const z = arr[2] || 0;
+    return new Vector3D(x, y, z);
+  }
+
+  static fromObj(obj: Vector3DLike): Vector3D {
+    const x = obj.x || 0;
+    const y = obj.y || 0;
+    const z = obj.z || 0;
+    return new Vector3D(x, y, z);
+  }
+
+  static fromJson(json: string): Vector3D {
+    const obj = JSON.parse(json);
+    return Vector3D.fromObj(obj);
+  }
+
+  // utils 工具函数
+
+  stringify(): string {
+    return JSON.stringify(this);
+  }
+  toString = this.stringify;
+
+  toObject(): Vector3DLike {
+    return {
+      x: this.x,
+      y: this.y,
+      z: this.z,
+    };
+  }
+
+  toArray(): number[] {
+    return [this.x, this.y, this.z];
+  }
+
+  clone(): Vector3D {
+    return new Vector3D(this.x, this.y, this.z);
+  }
+}
+
 export default class Vector3D {
   x: number;
   y: number;
@@ -415,6 +471,16 @@ export default class Vector3D {
   static round(v: Vector3DLike) {
     return new Vector3D(Math.round(v.x), Math.round(v.y), Math.round(v.z));
   }
+
+  // constants 常量
+  static ZERO: Vector3D = new Vector3D(0, 0, 0)
+  static UNIT_X: Vector3D = new Vector3D(1, 0, 0)
+  static UNIT_Y: Vector3D = new Vector3D(0, 1, 0)
+  static UNIT_Z: Vector3D = new Vector3D(0, 0, 1)
+  static NORMAL_XY = Vector3D.UNIT_Z
+  static NORMAL_XZ = Vector3D.UNIT_Y
+  static NORMAL_YZ = Vector3D.UNIT_X
+  static ONE = new Vector3D(1, 1, 1)
 }
 
 export interface Vector3DLike {
